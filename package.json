@@ -4,8 +4,11 @@
   "private": true,
   "description": "A modern full-stack web application developed for the SMIT Final Hackathon.",
   "scripts": {
-    "dev": "node ./node_modules/next/dist/bin/next dev",
-    "build": "node ./node_modules/next/dist/bin/next build",
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "preview": "node ./node_modules/vite/bin/vite.js preview",
+    "next:dev": "node ./node_modules/next/dist/bin/next dev",
+    "next:build": "node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start"
   },
   "repository": {
@@ -22,6 +25,7 @@
   "author": "Muhammad Aaban Shah",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "axios": "^1.20.0",
     "lucide-react": "^1.61.0",
     "next": "^16.4.3",
@@ -31,8 +35,10 @@
     "sweetalert2": "^11.26.25"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.6.1",
     "postcss": "^8.5.31",
-    "tailwindcss": "^3.4.19"
+    "tailwindcss": "^3.4.19",
+    "vite": "^6.2.0"
   }
 }
