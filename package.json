@@ -1,0 +1,38 @@
+{
+  "name": "smit-final-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A modern full-stack web application developed for the SMIT Final Hackathon.",
+  "scripts": {
+    "dev": "node ./node_modules/next/dist/bin/next dev",
+    "build": "node ./node_modules/next/dist/bin/next build",
+    "start": "node ./node_modules/next/dist/bin/next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naseem-shah92/SMIT-Final-Hackathon.git"
+  },
+  "keywords": [
+    "hackathon",
+    "smit",
+    "nextjs",
+    "react",
+    "tailwindcss"
+  ],
+  "author": "Muhammad Aaban Shah",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.20.0",
+    "lucide-react": "^1.61.0",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-toastify": "^11.1.0",
+    "sweetalert2": "^11.26.25"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.31",
+    "tailwindcss": "^3.4.19"
+  }
+}
