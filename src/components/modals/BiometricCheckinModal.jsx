@@ -26,10 +26,10 @@ export default function BiometricCheckinModal() {
             <span className="material-symbols-outlined text-secondary text-[22px]">photo_camera</span>
             <div>
               <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                Camera Biometric Check-In (M4)
+                Biometric Camera Verification
               </h3>
               <span className="font-label-sm text-label-sm text-outline">
-                Face Detection &amp; GPS Geofence (150m)
+                Face Telemetry &amp; GPS Geofence (150m)
               </span>
             </div>
           </div>
@@ -44,16 +44,16 @@ export default function BiometricCheckinModal() {
         <div className="p-space-lg space-y-space-md">
           
           {/* Simulated Camera Window */}
-          <div className="relative w-full h-56 bg-primary-container rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-outline/30">
+          <div className="relative w-full h-56 bg-slate-900 rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-slate-700">
             
-            {/* Target Box */}
-            <div className="w-32 h-44 border-2 border-on-tertiary-container rounded-2xl relative flex flex-col items-center justify-center bg-surface-container-lowest/10 backdrop-blur-2xs">
-              <span className="text-4xl">👩‍💻</span>
-              <span className="absolute -top-3 px-2 py-0.5 rounded-full bg-on-tertiary-container text-on-tertiary text-[10px] font-bold uppercase tracking-wider font-data-tabular">
-                Face Verified
+            {/* Target Reticle Box */}
+            <div className="w-36 h-44 border-2 border-emerald-400 rounded-2xl relative flex flex-col items-center justify-center bg-emerald-500/10 backdrop-blur-xs">
+              <span className="material-symbols-outlined text-5xl text-emerald-400">face</span>
+              <span className="absolute -top-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider font-data-tabular shadow-sm">
+                Single Face Confirmed
               </span>
-              <span className="absolute -bottom-2 text-[10px] font-data-tabular text-on-tertiary-container bg-primary-container px-2 rounded border border-on-tertiary-container/40">
-                Conf: 99.2%
+              <span className="absolute -bottom-2 text-[10px] font-data-tabular text-emerald-300 bg-slate-900 px-2 py-0.5 rounded border border-emerald-500/40">
+                Confidence: 99.4%
               </span>
             </div>
 

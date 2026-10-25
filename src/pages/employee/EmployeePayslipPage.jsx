@@ -7,7 +7,7 @@ export default function EmployeePayslipPage() {
   const myPayslip = payroll.records.find(r => r.empId === currentUser?.empId) || payroll.records[2];
 
   const handleDownloadPdf = () => {
-    alert(`Downloading Official Payslip PDF:\n\n• Payee: ${myPayslip.name} (${myPayslip.empId})\n• Month: ${payroll.month}\n• Gross: PKR ${myPayslip.gross.toLocaleString()}\n• Deductions: PKR ${myPayslip.deductions.toLocaleString()}\n• Income Tax: PKR ${myPayslip.monthlyTax.toLocaleString()}\n• Net Disbursed: PKR ${myPayslip.net.toLocaleString()}\n• Status: ${payroll.isFinalized ? 'LOCKED by Admin' : 'DRAFT PREVIEW'}\n\nDownloaded successfully!`);
+    window.print();
   };
 
   return (
@@ -15,7 +15,7 @@ export default function EmployeePayslipPage() {
       <div className="px-8 py-6 space-y-6 max-w-[1000px] mx-auto w-full">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 no-print">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-bold">
@@ -33,15 +33,15 @@ export default function EmployeePayslipPage() {
 
           <button
             onClick={handleDownloadPdf}
-            className="h-10 px-4 bg-on-tertiary-container text-on-tertiary hover:opacity-95 rounded-lg font-bold text-xs shadow-xs flex items-center gap-1.5"
+            className="h-10 px-4 bg-secondary text-on-secondary hover:bg-secondary-container rounded-lg font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            <span>Download Official PDF</span>
+            <span className="material-symbols-outlined text-[18px]">print</span>
+            <span>Print / Save as PDF</span>
           </button>
         </div>
 
         {/* Payslip Document Card */}
-        <div className="p-8 rounded-2xl bg-surface-container-lowest border border-surface-container shadow-sm space-y-6">
+        <div className="p-8 rounded-2xl bg-surface-container-lowest border border-surface-container shadow-sm space-y-6 print-card">
           
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-container pb-6">

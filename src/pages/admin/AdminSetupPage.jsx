@@ -2,11 +2,29 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function AdminSetupPage() {
-  const { orgSettings, setOrgSettings, addAuditLog, currentUser } = useApp();
+  const { orgSettings, setOrgSettings, setEmployees, setAttendance, setLeaveRequests, setPayroll, addAuditLog, currentUser } = useApp();
   const [formData, setFormData] = useState({ ...orgSettings });
   const [newDept, setNewDept] = useState('');
   const [newDesignation, setNewDesignation] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+
+  const handleResetFreshInstall = () => {
+    if (window.confirm("Reset to Fresh Install?\n\nThis will clear all employee and attendance records so judges can test company setup and employee registration from scratch (Section 1 & 9).")) {
+      setEmployees([]);
+      setAttendance([]);
+      setLeaveRequests([]);
+      setPayroll(prev => ({ ...prev, records: [], isFinalized: false }));
+      addAuditLog(
+        currentUser.name,
+        'RESET_TO_FRESH_INSTALL',
+        'System',
+        null,
+        {},
+        'Reset platform to clean state for live judging evaluation.'
+      );
+      alert('Platform initialized to empty state. You can now register departments and employees.');
+    }
+  };
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -56,12 +74,23 @@ export default function AdminSetupPage() {
             </h1>
           </div>
 
-          {isSaved && (
-            <span className="px-3 py-1.5 rounded-lg bg-surface-container text-on-tertiary-container font-label-md text-label-md font-bold flex items-center gap-1 shadow-xs">
-              <span className="material-symbols-outlined text-[18px]">check_circle</span>
-              Settings Stored Successfully
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleResetFreshInstall}
+              className="px-3.5 py-1.5 rounded-lg border border-surface-container bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant font-label-md text-label-md font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[18px]">restart_alt</span>
+              <span>Reset to Clean Slate</span>
+            </button>
+
+            {isSaved && (
+              <span className="px-3 py-1.5 rounded-lg bg-surface-container text-on-tertiary-container font-label-md text-label-md font-bold flex items-center gap-1 shadow-xs">
+                <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                Settings Stored Successfully
+              </span>
+            )}
+          </div>
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">

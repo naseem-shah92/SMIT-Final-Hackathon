@@ -17,18 +17,61 @@ export default function SmartLeaveModal() {
 
   if (!isSmartLeaveOpen) return null;
 
-  const handleNlpParse = () => {
+  const handleNlpParse = async () => {
     setIsParsing(true);
-    setTimeout(() => {
-      setIsParsing(false);
-      setFormData({
-        type: 'Casual Leave',
+    let parsedResult = null;
+
+    try {
+      const token = localStorage.getItem('saylani_hcm_token');
+      const res = await fetch('/api/ai/smart-leave', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ text: nlpText })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.leave_type) {
+          const typeMap = {
+            annual: 'Annual Leave',
+            sick: 'Sick Leave',
+            casual: 'Casual Leave',
+            unpaid: 'Unpaid Leave'
+          };
+          parsedResult = {
+            type: typeMap[data.leave_type.toLowerCase()] || 'Casual Leave',
+            startDate: data.start_date,
+            endDate: data.end_date,
+            days: 2,
+            reason: data.reason
+          };
+        }
+      }
+    } catch {
+      parsedResult = null;
+    }
+
+    if (!parsedResult) {
+      // Local fallback parsing
+      const txt = nlpText.toLowerCase();
+      let type = 'Casual Leave';
+      if (txt.includes('sick') || txt.includes('doctor') || txt.includes('fever')) type = 'Sick Leave';
+      else if (txt.includes('annual') || txt.includes('vacation')) type = 'Annual Leave';
+
+      parsedResult = {
+        type,
         startDate: '2026-10-27',
         endDate: '2026-10-28',
         days: 2,
-        reason: "Sister's wedding ceremony"
-      });
-    }, 600);
+        reason: txt.includes('wedding') ? "Attending family wedding ceremony" : "Personal leave commitment"
+      };
+    }
+
+    setFormData(parsedResult);
+    setIsParsing(false);
   };
 
   const handleSubmit = (e) => {
@@ -47,10 +90,10 @@ export default function SmartLeaveModal() {
             <span className="material-symbols-outlined text-secondary text-[22px]">event_busy</span>
             <div>
               <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                Apply for Leave (M5)
+                Apply for Time Off
               </h3>
               <span className="font-label-sm text-label-sm text-secondary font-semibold">
-                AI Smart Leave & Working Days Engine
+                AI Smart Leave &amp; Working Days Engine
               </span>
             </div>
           </div>

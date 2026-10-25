@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import CsvImportModal from '../../components/modals/CsvImportModal';
 
 export default function HREmployeesPage() {
-  const { employees, setIsAddEmployeeOpen, addAuditLog } = useApp();
+  const { employees, setIsAddEmployeeOpen } = useApp();
   const [filterDept, setFilterDept] = useState('ALL');
   const [search, setSearch] = useState('');
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
   const filtered = employees.filter(emp => {
     const matchesDept = filterDept === 'ALL' || emp.dept === filterDept;
@@ -14,13 +16,9 @@ export default function HREmployeesPage() {
     return matchesDept && matchesSearch;
   });
 
-  const handleCsvDryRun = () => {
-    alert("CSV Dry-Run Validation Report:\n\n• Row 1: Validated EMP-0991 (Naveed Ali) -> OK\n• Row 2: Validated EMP-0992 (Sana Mir) -> OK\n• Validation checks: unique code/email, valid ISO date, salary > 0, required fields.\n\nResult: 2 valid records ready for batch enrollment!");
-    addAuditLog('Zubair Khan (HR)', 'CSV_DRY_RUN', 'Executed CSV import dry-run for 2 employee rows. Zero errors detected.');
-  };
-
   return (
     <div className="flex flex-col w-full">
+      <CsvImportModal isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} />
       <div className="px-8 py-6 space-y-6 max-w-[1680px] mx-auto w-full">
         
         {/* Header Strip */}
@@ -42,8 +40,8 @@ export default function HREmployeesPage() {
 
           <div className="flex items-center flex-wrap gap-2.5">
             <button
-              onClick={handleCsvDryRun}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all shadow-xs"
+              onClick={() => setIsCsvModalOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all shadow-xs cursor-pointer"
               type="button"
             >
               <span className="material-symbols-outlined text-[18px]">upload_file</span>
