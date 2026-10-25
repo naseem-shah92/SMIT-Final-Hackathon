@@ -13,7 +13,7 @@ export const ENV = {
   
   // Hosted LLM / AI Configuration
   AI_API_KEY: process.env.AI_API_KEY || process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || '',
-  AI_MODEL: process.env.AI_MODEL || 'gemini-1.5-flash',
+  AI_MODEL: process.env.AI_MODEL || 'gemini-3.5-flash',
   
   // Initial Admin Credentials
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@saylani.org',

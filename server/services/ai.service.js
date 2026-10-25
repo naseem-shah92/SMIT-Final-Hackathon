@@ -28,6 +28,51 @@ You strictly adhere to Saylani HCM Lite specifications:
 `;
 
   /**
+   * Calls Google Gemini Generative API with timeout guardrail (15s per Section 4)
+   */
+  static async callGeminiAPI(systemInstruction, userPrompt) {
+    if (!ENV.AI_API_KEY) return null;
+
+    const modelName = ENV.AI_MODEL || 'gemini-3.5-flash';
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${ENV.AI_API_KEY}`;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${systemInstruction}\n\nTask:\n${userPrompt}` }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 600
+          }
+        })
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+    } catch {
+      clearTimeout(timeout);
+      return null;
+    }
+  }
+
+  /**
    * Tool Calling Execution Engine
    */
   static async executeTool(toolName, args = {}, currentUser) {
@@ -170,10 +215,28 @@ You strictly adhere to Saylani HCM Lite specifications:
       toolResult = await this.executeTool(toolToCall, toolArgs, currentUser);
     }
 
-    // 3. Generate answer
+    // 3. Generate answer: Attempt Live Gemini LLM first with grounded telemetry
     let answerText = '';
 
-    if (toolToCall === 'get_leave_summary') {
+    if (ENV.AI_API_KEY) {
+      const promptContext = `
+System Policies: ${this.SYSTEM_POLICY}
+User Role: ${currentUser.role}
+Tool Invoked: ${toolToCall || 'none'}
+Live Ground Truth Data from DB: ${JSON.stringify(toolResult || {})}
+User Query: "${message}"
+
+Instructions: Formulate a concise, professional, direct answer using strictly the ground truth database data provided above. If asked in Roman Urdu, you can reply in Roman Urdu or clear English. Never invent numbers not present in the data.
+`;
+      const geminiReply = await this.callGeminiAPI("You are the enterprise HR AI Assistant for Saylani HCM Lite.", promptContext);
+      if (geminiReply) {
+        answerText = geminiReply;
+      }
+    }
+
+    // Resilient fallback if Gemini is offline or not configured
+    if (!answerText) {
+      if (toolToCall === 'get_leave_summary') {
       if (toolResult.onLeaveTodayCount === 0) {
         answerText = 'No employees are on approved leave today. Full workforce is expected.';
       } else {
@@ -218,6 +281,7 @@ You strictly adhere to Saylani HCM Lite specifications:
         answerText = "I am ready to help with HCM Lite operations. You can ask me about attendance metrics, top late arrivals, who is on leave today, your leave balance, or company HR policies.";
       }
     }
+  }
 
     const duration = Date.now() - startTime;
     await this.logAICall({
@@ -277,6 +341,41 @@ You strictly adhere to Saylani HCM Lite specifications:
    * Parses free-form text or Roman Urdu into structured JSON: { type, start, end, reason }
    */
   static async parseSmartLeave(inputText, currentUser) {
+    // 1. Try Gemini Live Extraction
+    if (ENV.AI_API_KEY) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const extractionPrompt = `
+Today is ${todayStr}.
+Extract leave details from this employee text: "${inputText}".
+Output MUST be raw JSON with no markdown and no backticks:
+{
+  "leave_type": "annual" | "sick" | "casual" | "unpaid",
+  "start_date": "YYYY-MM-DD",
+  "end_date": "YYYY-MM-DD",
+  "reason": "concise explanation"
+}
+`;
+      const geminiJson = await this.callGeminiAPI("You are an HR Leave Parser returning strict JSON.", extractionPrompt);
+      if (geminiJson) {
+        try {
+          const cleaned = geminiJson.replace(/```json|```/g, '').trim();
+          const parsed = JSON.parse(cleaned);
+          if (parsed.leave_type && parsed.start_date && parsed.end_date) {
+            return {
+              leave_type: parsed.leave_type.toLowerCase(),
+              start_date: parsed.start_date,
+              end_date: parsed.end_date,
+              reason: parsed.reason || 'Personal leave request',
+              badge: 'AI-generated (Gemini 3.5 Flash)'
+            };
+          }
+        } catch {
+          // Fall through to deterministic parser
+        }
+      }
+    }
+
+    // 2. Deterministic Fallback Engine
     const text = (inputText || '').toLowerCase();
 
     // Determine leave type
