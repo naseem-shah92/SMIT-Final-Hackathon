@@ -19,8 +19,19 @@
 - **Frontend:** React 19, Vite 6, Tailwind CSS, Lucide Icons, SweetAlert2
 - **Backend:** Node.js (v24), Express 5, JSON Web Tokens (JWT), Bcrypt.js, Multer
 - **Database & Persistence:** Supabase (Cloud PostgreSQL with Row Level Security) + Resilient In-Memory Repository
-- **AI Engine:** Hosted LLM with Server-Side Tool Calling, System Policy Guards, and Sliding-Window Rate Limiting (20 req/user/hr)
-- **Architecture:** 90%+ Segregated Multi-Tier Architecture (`controllers`, `services`, `validators`, `middlewares`, `utils`, `config`, `constants`, `routes`).
+- **AI Engine:** Google Gemini 3.5 Flash with Server-Side Tool Calling, Policy Guards, and 20 req/user/hr Rate Limiting
+- **Architecture:** Enterprise Full-Stack Monorepo with 90%+ Segregated Multi-Tier Backend Layers.
+
+### 📁 Enterprise Repository Layout
+```
+SMIT-Final-Hackathon/
+├── frontend/        # React 19 Application (Components, Context, Pages, Modals, Styles)
+├── backend/         # Express 5 REST API (Controllers, Services, Middlewares, Routes, Utils)
+├── database/        # Supabase PostgreSQL Schemas & Seed SQL Data
+├── api/             # Vercel Serverless Function Edge Entry Point
+├── package.json     # Unified Full-Stack Scripts Orchestrator
+└── vercel.json      # Single-Domain Full-Stack Rewrites Configuration
+```
 
 ---
 

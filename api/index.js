@@ -1,5 +1,5 @@
-import app from '../server/app.js';
-import { AuthService } from '../server/services/auth.service.js';
+import app from '../backend/app.js';
+import { AuthService } from '../backend/services/auth.service.js';
 
 let isInit = false;
 

@@ -5,12 +5,14 @@
   "type": "module",
   "description": "A modern full-stack web application developed for the SMIT Final Hackathon.",
   "scripts": {
-    "dev": "node ./node_modules/vite/bin/vite.js",
-    "build": "node ./node_modules/vite/bin/vite.js build",
-    "preview": "node ./node_modules/vite/bin/vite.js preview",
-    "server": "node server/index.js",
-    "server:watch": "node --watch server/index.js",
-    "start": "node server/index.js"
+    "dev": "node ./node_modules/vite/bin/vite.js frontend",
+    "build": "node ./node_modules/vite/bin/vite.js build frontend",
+    "preview": "node ./node_modules/vite/bin/vite.js preview frontend",
+    "dev:frontend": "node ./node_modules/vite/bin/vite.js frontend",
+    "dev:backend": "node --watch backend/index.js",
+    "server": "node backend/index.js",
+    "server:watch": "node --watch backend/index.js",
+    "start": "node backend/index.js"
   },
   "repository": {
     "type": "git",
