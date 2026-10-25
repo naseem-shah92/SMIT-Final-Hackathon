@@ -28,8 +28,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Mount Central API Router
+// Mount Central API Router at both /api and root / for seamless local and Vercel serverless support
 app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 // 404 Handler
 app.use((req, res) => {

@@ -113,20 +113,22 @@ The system initializes with compliant accounts for immediate live judging:
 
 ---
 
-## 🚀 Production Deployment Guide
+## 🚀 Production Deployment Guide (Full Stack on Vercel)
 
-### Backend on Render.com (Free)
-1. Link your GitHub repository on Render as a **Web Service**.
-2. **Build Command:** `npm install`
-3. **Start Command:** `node server/index.js`
-4. Set Environment Variables in Render Dashboard (`PORT=5000`, `JWT_SECRET`, `AI_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`).
+Both the **Frontend** (Vite Single Page Application) and the **Backend** (Express REST API with 9 Modules) are pre-configured to deploy together on **Vercel** as a unified full-stack system:
 
-### Frontend on Vercel (Free)
-1. Import repository on Vercel.
-2. **Framework Preset:** Vite
-3. **Build Command:** `npm run build`
-4. **Output Directory:** `dist`
-5. Set `VITE_API_BASE_URL` to your live Render backend URL.
+1. Import the repository `SMIT-Final-Hackathon` on **[Vercel](https://vercel.com)**.
+2. Vercel automatically detects `vercel.json`:
+   - **Static Frontend:** Built from `npm run build` and served from `dist/`
+   - **Serverless Backend:** Automatically deployed from `api/index.js` handling all `/api/*` requests.
+3. In the Vercel Project Settings, add the Environment Variables:
+   - `JWT_SECRET`: `saylani-hcm-lite-secret-key-2026`
+   - `VITE_SUPABASE_URL`: `https://nrlikbhbvwytjgyomarg.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY`: `sb_publishable_J1If2IlWRRn3ruoCqs8ZKw_432FAtBB`
+   - `SUPABASE_URL`: `https://nrlikbhbvwytjgyomarg.supabase.co`
+   - `SUPABASE_KEY`: `sb_publishable_J1If2IlWRRn3ruoCqs8ZKw_432FAtBB`
+   - `AI_API_KEY`: *(Your Google Gemini or Hosted LLM key)*
+4. Click **Deploy**. Vercel will provide your single, unified live domain (e.g., `https://smit-final-hackathon.vercel.app`), serving both the application UI and `/api/*` endpoints with zero CORS issues!
 
 ---
 © 2026 Saylani Welfare International Trust · SMIT Hackathon HCM Lite
