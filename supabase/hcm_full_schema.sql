@@ -2208,7 +2208,8 @@ begin
   perform public.require(p_end >= p_start, 'End date must be on or after the start date');
   perform public.require(p_start >= current_date - 30, 'Leave older than 30 days needs an HR correction');
   perform public.require(t.gender_restriction is null or e.gender = t.gender_restriction, t.name || ' is not available for this employee');
-  perform public.require(current_date - e.joining_date >= t.min_service_days,
+  perform public.require(p_start >= e.joining_date, 'Leave cannot start before your joining date (' || e.joining_date || ')');
+  perform public.require(greatest(current_date, p_start) - e.joining_date >= t.min_service_days,
                          t.name || ' is available after ' || t.min_service_days || ' days of service');
   perform public.require(not p_half_day or (t.allow_half_day and p_start = p_end), 'Half day is allowed for a single day only');
 
