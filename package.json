@@ -1,53 +1,37 @@
 {
-  "name": "smit-final-hackathon",
-  "version": "0.1.0",
+  "name": "hcm-master-suite",
+  "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "description": "A modern full-stack web application developed for the SMIT Final Hackathon.",
   "scripts": {
-    "dev": "node ./node_modules/vite/bin/vite.js frontend",
-    "build": "node ./node_modules/vite/bin/vite.js build frontend",
-    "preview": "node ./node_modules/vite/bin/vite.js preview frontend",
-    "dev:frontend": "node ./node_modules/vite/bin/vite.js frontend",
-    "dev:backend": "node --watch backend/index.js",
-    "server": "node backend/index.js",
-    "server:watch": "node --watch backend/index.js",
-    "start": "node backend/index.js"
+    "dev": "node node_modules/next/dist/bin/next dev",
+    "build": "node node_modules/next/dist/bin/next build",
+    "start": "node node_modules/next/dist/bin/next start",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "test:db": "node supabase/tests/run-db-tests.mjs",
+    "test:ai": "node --test supabase/tests/copilot.test.mjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/naseem-shah92/SMIT-Final-Hackathon.git"
-  },
-  "keywords": [
-    "hackathon",
-    "smit",
-    "nextjs",
-    "react",
-    "tailwindcss"
-  ],
-  "author": "Muhammad Aaban Shah",
-  "license": "ISC",
   "dependencies": {
-    "@supabase/supabase-js": "^2.118.0",
-    "axios": "^1.20.0",
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^18.0.9",
-    "express": "^5.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "lucide-react": "^1.61.0",
-    "multer": "^2.5.0",
-    "next": "^16.4.3",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "react-toastify": "^11.1.0",
-    "sweetalert2": "^11.26.25"
+    "@gsap/react": "^2.1.2",
+    "@supabase/supabase-js": "^2.57.4",
+    "@tanstack/react-query": "^5.89.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "gsap": "^3.15.0",
+    "lucide-react": "^0.544.0",
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "recharts": "^3.2.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.6.1",
-    "postcss": "^8.5.31",
-    "tailwindcss": "^3.4.19",
-    "vite": "^6.2.0"
+    "@electric-sql/pglite": "0.3.15",
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^22.18.6",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
   }
 }

@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   HCM Master Suite — design tokens
+   One shared forest/sage theme. Every colour
+   used by components resolves to shared CSS variables across
+   the landing page, authentication and signed-in workspace.
+   ───────────────────────────────────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+:root {
+  --canvas: #f8f9f5;
+  --surface: #ffffff;
+  --surface-muted: #edf1e7;
+  --ink: #183d38;
+  --ink-soft: #6b7c75;
+  --line: #dce3d2;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
+  --shadow-soft: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-pop: 0 12px 40px -12px rgba(16, 24, 40, 0.28);
+
+  /* Shared brand palette: landing, authentication and workspace. */
+  --brand-50: #f0f3e9; --brand-100: #e5ecd7; --brand-200: #d5e3bf; --brand-300: #bfd3a4; --brand-400: #9ab57b;
+  --brand-500: #507657; --brand-600: #214e43; --brand-700: #1c443a; --brand-800: #193e35; --brand-900: #14332d;
+  --brand-lime: #d5f586;
+  color-scheme: light;
+}
+* { border-color: var(--line); }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
+input[type="date"], input[type="time"], input[type="month"] { color-scheme: inherit; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--ink-soft) 40%, transparent); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+
+@layer utilities {
+  .brand-gradient { background-image: linear-gradient(135deg, var(--brand-600), var(--brand-700)); }
+  .brand-gradient-hover:hover { background-image: linear-gradient(135deg, var(--brand-500), var(--brand-700)); }
+  .brand-glow { background: radial-gradient(70% 70% at 20% 10%, #d5f58612, transparent 70%), linear-gradient(160deg, var(--brand-600), var(--brand-900)); }
+  .grid-dots { background-image: radial-gradient(color-mix(in oklab, white 22%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-pop { box-shadow: var(--shadow-pop); }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fade-up { animation: fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes slidein { from { transform: translateX(24px); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
+  .animate-slidein { animation: slidein .3s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .animate-float { animation: float 6s ease-in-out infinite; }
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  .print-area, .print-area * { visibility: visible !important; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; border: none !important; color: #000 !important; background: #fff !important; }
+  .no-print { display: none !important; }
+}

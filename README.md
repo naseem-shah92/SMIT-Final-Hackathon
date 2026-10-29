@@ -1,145 +1,176 @@
-# 🏢 HCM Lite — AI-Assisted Human Capital Management Platform
-### Saylani Final Hackathon 2026 · Zaitoon Ashraf IT Park
-**Author:** Muhammad Aaban Shah & Team  
-**Live Application URL:** *[Insert Live Vercel Link Here]*  
-**Backend API URL:** *[Insert Live Render Link Here]*  
-**Submission Portal:** Saylani LMS (`https://lms.saylaniit.com/`)
+# HCM Master Suite
 
----
+A multi-company HR, attendance, payroll and talent platform built from the HCM Master Suite Product Brief. It uses Next.js 15 for the web app and Supabase (Postgres, Auth, Storage, Edge Functions) for the backend.
 
-## 🌟 Executive Summary
-**HCM Lite** is an enterprise-grade Human Capital Management system built from scratch for HR daily operations with an intelligent, privacy-aware AI assistant powered by tool-calling architecture. 
-- **Strict Multi-Tenant RBAC:** Dedicated dashboards and scoped data pipelines for **Super Admin**, **HR Lead**, and **Employee**.
-- **Real Enterprise Engine:** 0 preloaded mock data — starts clean, initialized by Admin setup and populated by everyday check-ins, leaves, and approvals.
-- **Production AI Telemetry (M8):** LLM tool-calling engine that answers operational questions using real database numbers, generates smart leaves from natural language, and strictly enforces confidentiality policies (refuses employee queries regarding peer compensation).
+Every rule the brief calls "server authority" lives in the database. That covers who sees what, payroll maths, maker-checker approvals, leave validation and the geofenced clock-in. The browser can never skip these rules.
 
----
 
-## 🛠️ Technology Stack & Architecture
-- **Frontend:** React 19, Vite 6, Tailwind CSS, Lucide Icons, SweetAlert2
-- **Backend:** Node.js (v24), Express 5, JSON Web Tokens (JWT), Bcrypt.js, Multer
-- **Database & Persistence:** Supabase (Cloud PostgreSQL with Row Level Security) + Resilient In-Memory Repository
-- **AI Engine:** Google Gemini 3.5 Flash with Server-Side Tool Calling, Policy Guards, and 20 req/user/hr Rate Limiting
-- **Architecture:** Enterprise Full-Stack Monorepo with 90%+ Segregated Multi-Tier Backend Layers.
+## 1. What is inside
 
-### 📁 Enterprise Repository Layout
+### Roles
+
+The 14 roles from brief §2, stored as `public.app_role`:
+
+- Platform Super Admin
+- Company Owner
+- Company Admin
+- HR Director
+- HR Manager
+- HR Executive
+- Payroll Officer
+- Finance Controller
+- Recruiter
+- Hiring Manager
+- Line Manager
+- Employee
+- Candidate
+- Auditor
+
+Custom roles can hide modules for a member. Data access always follows the system role and is enforced by row-level security.
+
+### Modules
+
+These match the brief's modules (M0 to M15):
+
+- **Platform and security:** multi-company tenancy, invites, users and roles, ABAC scope by branch or department, time-boxed auditor access, and an immutable audit log.
+- **Core HR:** directory, org chart, profiles, effective-dated job and salary history, private data split into its own table, documents vault, assets, and HR letters with public verification.
+- **Recruitment:** requisitions with approval, a public careers page, explainable match scores, a kanban pipeline, interviews with scorecards, offers with an over-band approval, and one-click hire.
+- **Onboarding and offboarding:** checklists with a task owner (HR, IT, Admin, Manager, Finance, Employee, Buddy), resignation, exit interview, and a final settlement covering salary, leave encashment, gratuity and loan recovery, approved by HR then Finance.
+- **Time and attendance:**
+  - Server-stamped clock-in and clock-out.
+  - Office geofence (haversine distance check), shifts, night shifts, weekly rosters and holidays.
+  - Corrections and overtime requests with approval.
+  - An attendance board with CSV export.
+- **Leave:** policy-as-data leave types, monthly or annual accrual, proration, sandwich rule, documents, half days, manager to HR routing, leave calendar and balance adjustments.
+- **Payroll:**
+  - Pakistan FY2025-26 salaried slabs, stored as data. Basic, house rent and utilities split, tax-exempt medical, EOBI, provident fund.
+  - Overtime, absences, late deductions, loans, bonuses and deductions, and expense reimbursement.
+  - Pre-payroll exception checks.
+  - Maker-checker: calculate, then HR approval, then Finance approval (by a different person), then finalize.
+  - Bank transfer CSV, and published payslips that show a formula on every line.
+- **Expenses, travel and loans:** receipts, per-category limits with over-policy flags, manager then finance approval, and loan installments recovered in payroll.
+- **Performance:** OKR goals with key results, review cycles (self, manager, calibration) and continuous feedback.
+- **Learning:** courses, mandatory assignment, progress, automatic certificates with expiry, and compliance tracking.
+- **Engagement:** announcements with acknowledgement, a kudos wall, and anonymous pulse and eNPS surveys. Results are hidden below 5 responses.
+- **Helpdesk:** tickets with SLA by priority, internal notes, satisfaction rating and a knowledge base.
+- **AI copilot:** a Supabase Edge Function that answers with the user's own permissions and logs every question to `ai_logs`.
+- **Analytics:** role dashboards, headcount trend, attrition, hiring funnel, leave, tenure, payroll cost by department and explainable flight-risk signals.
+
+### UI
+
+- A real split-screen login page.
+- Sign-up, magic link, Google button, forgot password and reset password.
+- A two-step company setup wizard.
+- One shared light forest/sage theme across the landing page, authentication and workspace. Legacy saved themes are migrated automatically.
+- A collapsible sidebar, command search (Ctrl K), notifications and a company switcher.
+- Mobile responsive.
+
+
+## 2. Set up Supabase (fresh project)
+
+1. Create a Supabase project, or use your existing empty one.
+
+2. Open SQL Editor and run `supabase/hcm_full_schema.sql` once. It contains all migrations including the new copilot conversation migration. Run it once on a fresh project. Existing installations must apply only new migrations; see COPILOT_SETUP.md. If you prefer the CLI, run `supabase link` and then `supabase db push`, which uses the `supabase/migrations` folder.
+
+   If the project already has a `profiles` table, for example from Supabase's starter template, it is upgraded automatically.
+
+   If the script stops with "Old tables from another schema already exist", your project still has tables from an older app. On a fresh or test project only:
+   - run `supabase/00_reset_public_schema.sql` first (it deletes all public tables and data, and keeps auth users and storage files);
+   - then run `hcm_full_schema.sql` again.
+
+3. In Authentication → URL Configuration:
+   - Set Site URL to your app URL, for example `http://localhost:3000`.
+   - Add `http://localhost:3000/**` to the redirect URLs.
+
+4. Optional:
+   - Under Authentication → Providers, enable Google to make the Google button work.
+   - Turn off "Confirm email" if you want instant sign-up while testing.
+
+5. Storage buckets are created by migration 0012:
+   - `hr-documents` (private)
+   - `receipts` (private)
+   - `cvs` (private, public upload only into open jobs)
+   - `avatars` (public)
+
+6. AI copilot: follow [COPILOT_SETUP.md](COPILOT_SETUP.md) to apply the new conversation migration, set server-side Groq and OpenRouter secrets, and deploy the copilot Edge Function. Groq is primary; a free OpenRouter model is the fallback.
+
+7. To make yourself platform super admin, run this in the SQL editor:
+   ```
+   update profiles set is_platform_admin = true where email = 'you@company.com';
+   ```
+
+
+## 3. Run the web app
+
 ```
-SMIT-Final-Hackathon/
-├── frontend/        # React 19 Application (Components, Context, Pages, Modals, Styles)
-├── backend/         # Express 5 REST API (Controllers, Services, Middlewares, Routes, Utils)
-├── database/        # Supabase PostgreSQL Schemas & Seed SQL Data
-├── api/             # Vercel Serverless Function Edge Entry Point
-├── package.json     # Unified Full-Stack Scripts Orchestrator
-└── vercel.json      # Single-Domain Full-Stack Rewrites Configuration
-```
-
----
-
-## 📋 Comprehensive 9 Modules Checklist (What is Done)
-
-| # | Module | PDF Functionalities | Status | Access Scope |
-|---|---|---|---|---|
-| **M1** | **Auth & Access** | JWT Login, Bcrypt hashing, 3 distinct roles, role + data-scope guard, password change on first sign-in | ✅ 100% Complete | Admin / HR / Employee |
-| **M2** | **Org Setup** | Company settings (09:00 start, 15m grace, 5h half-day, 150m geofence), departments, designations, public holidays | ✅ 100% Complete | Admin (Manage) / HR (View) |
-| **M3** | **Employees** | Directory search & server filters, Employee 360 profile, dry-run CSV validation (row+field+reason), CSV export | ✅ 100% Complete | HR (Manage) / Employee (Self phone & address) |
-| **M4** | **Attendance** | Server time stamping, 1 record/employee/day (second check-in = 409), status rules (late > 09:15, half_day < 5h), geofencing Haversine check, corrections workflow | ✅ 100% Complete | All Roles (Scoped) |
-| **M5** | **Leave** | Working days engine (skips weekends & holidays), Quotas (Annual 14, Sick 8, Casual 10, Unpaid unlimited), Overlap & over-balance = 422, HR approvals | ✅ 100% Complete | Employee (Apply) / HR (Approve) |
-| **M6** | **Payroll Lite** | Gross = 1.5 × Basic (HRA 40%, Medical 10%), Daily rate deductions, Pakistan 5-tier annual tax slabs, HR draft, Admin finalize & permanent lock, PDF payslips | ✅ 100% Complete | HR (Draft) / Admin (Finalize) / Employee (Own) |
-| **M7** | **Dashboards & Analytics** | Computed server-side aggregations (Headcount, Attrition YTD formula, Attendance rate %, Late %, Leave utilization %, Payroll costs) | ✅ 100% Complete | Scoped Dashboards |
-| **M8** | **AI Assistant** | Server-only API key, Chat with tool calling (`get_headcount`, `get_attendance_summary`, `get_late_comers`, `get_leave_summary`, `get_my_leave_balance`, `get_payroll_summary`), Dashboard summarizer, Smart Leave parser, Colleague salary refusal | ✅ 100% Complete | All Roles (Privacy Scoped) |
-| **M9** | **Comms & Audit** | Organization-wide announcements, in-app notifications, immutable audit log with actor, action, before/after JSON | ✅ 100% Complete | Admin (Audit) / All (Comms) |
-
----
-
-## ⚡ Quick Start: Running Locally Under 5 Minutes
-
-### 1. Prerequisites
-- Node.js (v18.0.0 or higher recommended)
-- Git
-
-### 2. Installation
-Clone the repository and install all dependencies:
-```bash
-git clone https://github.com/naseem-shah92/SMIT-Final-Hackathon.git
-cd SMIT-Final-Hackathon
 npm install
+cp .env.example .env.local     # paste the project URL and anon key
+npm run dev                    # http://localhost:3000
 ```
 
-### 3. Environment Configuration
-Copy the template environment file:
-```bash
-cp .env.example .env
-```
-Fill in the variables in `.env`:
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-JWT_SECRET=saylani-hcm-lite-secret-key-2026
+To deploy, push to Vercel (or any Node host) and set the public Supabase variables and NEXT_PUBLIC_SITE_URL there. Keep AI provider secrets in Supabase Edge Function secrets.
 
-# Supabase PostgreSQL (Optional cloud sync)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
-# AI Assistant API Key
-AI_API_KEY=your-google-gemini-or-hosted-llm-key
-```
+## 4. First run
 
-### 4. Running the Full Stack Platform
-- **Run Backend Server (Port 5000):**
-  ```bash
-  npm run server
-  ```
-  *(Health Check: http://localhost:5000/api/health)*
+1. Sign up, then create your company. The setup seeds:
+   - a head office branch
+   - six departments
+   - grades G1 to G6
+   - two shifts
+   - the Pakistan leave policy
+   - FY2025-26 tax slabs
+   - payroll settings
+   - expense limits
+   - five letter templates
+   - three knowledge base articles
+   - your own employee record
 
-- **Run Frontend Application (Port 5173):**
-  ```bash
-  npm run dev
-  ```
-  Open http://localhost:5173 in your browser.
+2. Add people from People → Add employee. Tick "Invite to the app", or invite them later from Users & roles.
 
----
+3. Invited people sign up with the same email and join your company automatically, with the role you chose.
 
-## 🔐 Baseline Evaluation Credentials
+4. Set office coordinates in Settings → Organization → Branches to switch on geofenced clock-in.
 
-The system initializes with compliant accounts for immediate live judging:
 
-| Role | Email | Password | Access Scope |
-|---|---|---|---|
-| **Super Admin** | `admin@saylani.org` | `admin123` *(or `admin`)* | Company setup, audit log, finalize payroll |
-| **HR Lead** | `bilal@saylani.org` | `hr123` *(or `hr`)* | Employee directory, leave approval, payroll draft |
-| **Employee** | `ayesha@saylani.org` | `emp123` *(or `emp`)* | Biometric check-in, apply leave, personal payslip |
+## 5. How access is enforced
 
----
+- Every table has `tenant_id`. A trigger fills it from the user's active company, so the browser never chooses it.
+- Row-level security is on for every table. The role groups in `0001_foundation.sql` are used by the policies, and the same groups are mirrored in `src/lib/roles.ts`.
+- **Salary:** only the employee and the pay roles can see it. HR Executive and Line Manager cannot see salaries (brief §21).
+- **Private data:** CNIC, date of birth and bank details sit in `employee_private`. Employees can edit their own contact details, but only HR can change CNIC or bank details.
+- **Status changes:** approvals and status changes happen only through SQL functions such as `decide_leave`, `advance_payroll`, `hire_candidate` and `advance_settlement`. These functions check role, scope and maker-checker.
+- **Internal helpers:** functions not meant for the browser have execute revoked, for example `leave_balances` and `annual_income_tax`.
+- **Survey responses:** these cannot be read directly. Only aggregated results with a minimum of 5 responses are released.
 
-## 🧪 Live Demo Flow for Judges (5-Minute Script)
-1. **First-Run / Executive View:** Sign in as Super Admin (`admin@saylani.org`) to inspect company parameters (office hours 09:00, grace 15 min, 150m office radius) and review the immutable Audit Ledger.
-2. **HR Operations:** Sign in as HR Lead (`bilal@saylani.org`). Register a new employee or view the workforce directory. Prepare the monthly payroll draft.
-3. **Employee Self-Service:** Sign in as Employee (`ayesha@saylani.org`). 
-   - Perform Web or Camera check-in (server stamps time). Attempting a second check-in confirms the **HTTP 409 Conflict** rule.
-   - Click the **AI Copilot** floating launcher at the bottom.
-   - Ask: *"What is my colleague's salary?"* -> AI strictly refuses under privacy policies.
-   - Ask: *"Need next Monday and Tuesday off for my sister's wedding"* -> AI smart leave pre-fills the form with calculated working days.
-4. **Approval & Payroll Locking:** HR approves the leave request. HR runs payroll draft. Super Admin reviews and clicks **Finalize Payroll** (the month becomes permanently locked).
 
----
+## 6. Tests
 
-## 🚀 Production Deployment Guide (Full Stack on Vercel)
+`npm run test:db` runs all migrations on an in-memory Postgres (PGlite) with Supabase stand-ins. It then plays a full company scenario as real signed-in users under RLS. That is 131 checks, covering:
 
-Both the **Frontend** (Vite Single Page Application) and the **Backend** (Express REST API with 9 Modules) are pre-configured to deploy together on **Vercel** as a unified full-stack system:
+- sign-up and invites
+- privacy rules
+- leave
+- geofence
+- payroll maker-checker with the worked example (135,000 gross with PF and an 8,000 loan gives a net of 116,424 and tax of 3,459)
+- expenses
+- recruitment to hire
+- reviews
+- surveys
+- helpdesk
+- final settlement
+- tenant isolation
 
-1. Import the repository `SMIT-Final-Hackathon` on **[Vercel](https://vercel.com)**.
-2. Vercel automatically detects `vercel.json`:
-   - **Static Frontend:** Built from `npm run build` and served from `dist/`
-   - **Serverless Backend:** Automatically deployed from `api/index.js` handling all `/api/*` requests.
-3. In the Vercel Project Settings, add the Environment Variables:
-   - `JWT_SECRET`: `saylani-hcm-lite-secret-key-2026`
-   - `VITE_SUPABASE_URL`: `https://nrlikbhbvwytjgyomarg.supabase.co`
-   - `VITE_SUPABASE_ANON_KEY`: `sb_publishable_J1If2IlWRRn3ruoCqs8ZKw_432FAtBB`
-   - `SUPABASE_URL`: `https://nrlikbhbvwytjgyomarg.supabase.co`
-   - `SUPABASE_KEY`: `sb_publishable_J1If2IlWRRn3ruoCqs8ZKw_432FAtBB`
-   - `AI_API_KEY`: *(Your Google Gemini or Hosted LLM key)*
-4. Click **Deploy**. Vercel will provide your single, unified live domain (e.g., `https://smit-final-hackathon.vercel.app`), serving both the application UI and `/api/*` endpoints with zero CORS issues!
 
----
-© 2026 Saylani Welfare International Trust · SMIT Hackathon HCM Lite
+## 7. Not included (needs outside services)
+
+The brief lists some items that depend on third parties. They are not built here:
+
+- native mobile apps (the web app is responsive and can be installed as a PWA later)
+- WhatsApp bot
+- biometric device sync and face recognition
+- FBR/EOBI e-filing APIs
+- bank API transfers (a bank CSV is generated instead)
+- Slack and Teams apps
+- the 12 autonomous AI agents (the copilot and its tool layer are the foundation for them)
+- the integrations marketplace

@@ -1,0 +1,32 @@
+{
+  "version": "5",
+  "remote": {
+    "https://esm.sh/@supabase/supabase-js@2.57.4": "05a369085eb4a4c99d85ccece97f0cf1e05357122e0e74373da1f0e91b014902"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@electric-sql/pglite@0.3.15",
+        "npm:@gsap/react@^2.1.2",
+        "npm:@supabase/supabase-js@^2.57.4",
+        "npm:@tailwindcss/postcss@^4.1.13",
+        "npm:@tanstack/react-query@^5.89.0",
+        "npm:@types/node@^22.18.6",
+        "npm:@types/react-dom@^19.1.9",
+        "npm:@types/react@^19.1.13",
+        "npm:class-variance-authority@~0.7.1",
+        "npm:clsx@^2.1.1",
+        "npm:gsap@^3.15.0",
+        "npm:lucide-react@0.544",
+        "npm:next@^15.5.4",
+        "npm:react-dom@^19.1.1",
+        "npm:react@^19.1.1",
+        "npm:recharts@^3.2.1",
+        "npm:sonner@^2.0.7",
+        "npm:tailwind-merge@^3.3.1",
+        "npm:tailwindcss@^4.1.13",
+        "npm:typescript@^5.9.2"
+      ]
+    }
+  }
+}
