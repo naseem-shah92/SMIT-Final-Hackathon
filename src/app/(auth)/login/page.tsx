@@ -1,14 +1,18 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 import { friendlyError } from "@/lib/api";
 import { AuthField, Divider, GoogleButton } from "../auth-ui";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { refresh } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"password" | "magic">("password");
@@ -23,6 +27,8 @@ export default function LoginPage() {
         const { error } = await supabase().auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
         toast.success("Welcome back");
+        const c = await refresh();
+        router.replace(c?.tenant || c?.is_platform_admin ? "/dashboard" : "/onboarding");
       } else {
         const { error } = await supabase().auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin + "/dashboard", shouldCreateUser: false } });
         if (error) throw error;

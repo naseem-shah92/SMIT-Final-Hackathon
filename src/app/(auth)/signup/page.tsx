@@ -1,14 +1,18 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, MailCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 import { friendlyError } from "@/lib/api";
 import { AuthField, Divider, GoogleButton, PasswordStrength } from "../auth-ui";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const { refresh } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +31,13 @@ export default function SignupPage() {
         options: { data: { full_name: name.trim() }, emailRedirectTo: window.location.origin + "/onboarding" },
       });
       if (error) throw error;
-      if (!data.session) setSent(true); // email confirmation is on
+      if (!data.session) {
+        setSent(true); // email confirmation is on
+      } else {
+        toast.success("Account created successfully");
+        const c = await refresh();
+        router.replace(c?.tenant || c?.is_platform_admin ? "/dashboard" : "/onboarding");
+      }
     } catch (err) {
       const m = friendlyError(err);
       toast.error(/already registered/i.test(m) ? "This email already has an account. Sign in instead." : m);
